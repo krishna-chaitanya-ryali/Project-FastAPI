@@ -1,11 +1,9 @@
 ## Imports for Users Router
 from typing import Annotated
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
-
 import models
 from database import get_db
 from schemas import PostResponse, UserCreate, UserResponse, UserUpdate
@@ -48,7 +46,6 @@ async def create_user(user: UserCreate, db: Annotated[AsyncSession, Depends(get_
     await db.refresh(new_user)
     return new_user
 
-
 ## get_user
 @router.get("/{user_id}", response_model=UserResponse)
 async def get_user(user_id: int, db: Annotated[AsyncSession, Depends(get_db)]):
@@ -57,7 +54,6 @@ async def get_user(user_id: int, db: Annotated[AsyncSession, Depends(get_db)]):
     if user:
         return user
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-
 
 ## get_user_posts
 @router.get("/{user_id}/posts", response_model=list[PostResponse])
@@ -77,7 +73,6 @@ async def get_user_posts(user_id: int, db: Annotated[AsyncSession, Depends(get_d
     )
     posts = result.scalars().all()
     return posts
-
 
 ## update_user
 @router.patch("/{user_id}", response_model=UserResponse)
@@ -125,8 +120,6 @@ async def update_user(
     await db.refresh(user)
     return user
 
-
-
 ## delete_user
 @router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_user(user_id: int, db: Annotated[AsyncSession, Depends(get_db)]):
@@ -140,4 +133,3 @@ async def delete_user(user_id: int, db: Annotated[AsyncSession, Depends(get_db)]
 
     await db.delete(user)
     await db.commit()
-

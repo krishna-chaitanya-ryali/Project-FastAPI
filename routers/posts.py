@@ -1,11 +1,9 @@
 ## Imports for Posts Router
 from typing import Annotated
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
-
 import models
 from database import get_db
 from schemas import PostCreate, PostResponse, PostUpdate
@@ -45,11 +43,11 @@ async def create_post(post: PostCreate, db: Annotated[AsyncSession, Depends(get_
         content=post.content,
         user_id=post.user_id,
     )
+
     db.add(new_post)
     await db.commit()
     await db.refresh(new_post, attribute_names=["author"])
     return new_post
-
 
 ## get_post
 @router.get("/{post_id}", response_model=PostResponse)
@@ -63,7 +61,6 @@ async def get_post(post_id: int, db: Annotated[AsyncSession, Depends(get_db)]):
     if post:
         return post
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
-
 
 ## update_post_full
 @router.put("/{post_id}", response_model=PostResponse)
