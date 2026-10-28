@@ -1,25 +1,138 @@
 {% extends "layout.html" %}
 {% block content %}
-  {% for post in posts %}
-    <article class="content-section py-3 px-4 mb-4">
-      <div class="d-flex align-items-start gap-4">
-        <img class="rounded-circle article-img flex-shrink-0"
-             src="{{ post.author.image_path }}"
-             alt="{{ post.author.username }}'s profile picture"
-             width="64"
-             height="64"
-             loading="lazy">
-        <div class="flex-grow-1">
-          <div class="article-metadata mb-2">
-            <a class="me-2" href="{{ url_for('user_posts', user_id=post.author.id) }}">{{ post.author.username }}</a>
-            <small class="text-body-secondary">{{ post.date_posted.strftime('%B %d, %Y') }}</small>
-          </div>
-          <h2>
-            <a class="article-title" href="{{ url_for('post_page', post_id=post.id) }}">{{ post.title }}</a>
-          </h2>
-          <p class="article-content">{{ post.content }}</p>
-        </div>
-      </div>
-    </article>
-  {% endfor %}
+    <div id="postsContainer">
+        {% for post in posts %}
+            <article class="content-section py-3 px-4 mb-4">
+                <div class="d-flex align-items-start gap-4">
+                    <img class="rounded-circle article-img flex-shrink-0"
+                         src="{{ post.author.image_path }}"
+                         alt="{{ post.author.username }}'s profile picture"
+                         width="64"
+                         height="64"
+                         loading="lazy">
+                    <div class="flex-grow-1">
+                        <div class="article-metadata mb-2">
+                            <a class="me-2"
+                               href="{{ url_for("user_posts", user_id=post.author.id) }}">{{ post.author.username }}</a>
+                            <small class="text-body-secondary">{{ post.date_posted.strftime("%B %d, %Y") }}</small>
+                        </div>
+                        <h2>
+                            <a class="article-title"
+                               href="{{ url_for("post_page", post_id=post.id) }}">{{ post.title }}</a>
+                        </h2>
+                        <p class="article-content">{{ post.content }}</p>
+                    </div>
+                </div>
+            </article>
+        {% endfor %}
+    </div>
+    <div id="loadMorePosts" class="text-center mb-4">
+        {% if has_more %}
+            <a id="loadMoreBtn"
+               class="btn btn-outline-primary"
+               href="/?skip={{ next_offset }}#loadMorePosts">Load More Posts</a>
+        {% endif %}
+    </div>
 {% endblock content %}
+
+{% block scripts %}
+    <script>
+        const postsContainer = document.getElementById("postsContainer");
+        const loadMoreBtn = document.getElementById("loadMoreBtn");
+        let currentOffset = {{ next_offset }};
+        const pageSize = {{ limit }};
+
+        function createPostElement(post) {
+            const article = document.createElement("article");
+            article.className = "content-section py-3 px-4 mb-4";
+
+            const row = document.createElement("div");
+            row.className = "d-flex align-items-start gap-4";
+
+            const image = document.createElement("img");
+            image.className = "rounded-circle article-img flex-shrink-0";
+            image.src = post.author.image_path;
+            image.alt = `${post.author.username}'s profile picture`;
+            image.width = 64;
+            image.height = 64;
+            image.loading = "lazy";
+
+            const content = document.createElement("div");
+            content.className = "flex-grow-1";
+
+            const metadata = document.createElement("div");
+            metadata.className = "article-metadata mb-2";
+
+            const author = document.createElement("a");
+            author.className = "me-2";
+            author.href = `/users/${post.author.id}/posts`;
+            author.textContent = post.author.username;
+
+            const date = document.createElement("small");
+            date.className = "text-body-secondary";
+            date.textContent = new Date(post.date_posted).toLocaleDateString(
+                "en-US",
+                { year: "numeric", month: "long", day: "2-digit" },
+            );
+
+            const heading = document.createElement("h2");
+            const title = document.createElement("a");
+            title.className = "article-title";
+            title.href = `/posts/${post.id}`;
+            title.textContent = post.title;
+
+            const body = document.createElement("p");
+            body.className = "article-content";
+            body.textContent = post.content;
+
+            metadata.append(author, date);
+            heading.append(title);
+            content.append(metadata, heading, body);
+            row.append(image, content);
+            article.append(row);
+            return article;
+        }
+
+        async function loadMorePosts(event) {
+            event.preventDefault();
+            if (loadMoreBtn.getAttribute("aria-disabled") === "true") return;
+
+            loadMoreBtn.setAttribute("aria-disabled", "true");
+            loadMoreBtn.classList.add("disabled");
+            loadMoreBtn.textContent = "Loading...";
+
+            try {
+                const response = await fetch(
+                    `/api/posts?skip=${currentOffset}&limit=${pageSize}`,
+                );
+                if (!response.ok) {
+                    throw new Error(`Request failed with status ${response.status}`);
+                }
+
+                const data = await response.json();
+                for (const post of data.posts) {
+                    postsContainer.append(createPostElement(post));
+                }
+
+                currentOffset += data.posts.length;
+                if (data.has_more) {
+                    loadMoreBtn.href = `/?skip=${currentOffset}#loadMorePosts`;
+                    loadMoreBtn.removeAttribute("aria-disabled");
+                    loadMoreBtn.classList.remove("disabled");
+                    loadMoreBtn.textContent = "Load More Posts";
+                } else {
+                    loadMoreBtn.remove();
+                }
+            } catch (error) {
+                console.error("Error loading posts:", error);
+                loadMoreBtn.removeAttribute("aria-disabled");
+                loadMoreBtn.classList.remove("disabled");
+                loadMoreBtn.textContent = "Error - Click to Retry";
+            }
+        }
+
+        if (loadMoreBtn) {
+            loadMoreBtn.addEventListener("click", loadMorePosts);
+        }
+    </script>
+{% endblock scripts %}

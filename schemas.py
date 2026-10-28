@@ -1,5 +1,4 @@
 from datetime import datetime
-
 from pydantic import BaseModel, ConfigDict, Field, EmailStr
 
 class UserBase(BaseModel):
@@ -20,11 +19,9 @@ class UserPublic(BaseModel):
 class UserPrivate(UserPublic):
     email: EmailStr
 
-
 class UserUpdate(BaseModel):
     username: str | None = Field(default=None, min_length=1, max_length=50)
     email: EmailStr | None = Field(max_length=None, min_length=120)
-    image_file: str | None = Field(default=None, min_length=1, max_length=200)
 
 class Token(BaseModel):
     access_token: str
@@ -35,12 +32,11 @@ class PostBase(BaseModel):
     content: str = Field(max_length=1000, min_length=1)
 
 class PostCreate(PostBase):
-    user_id: int # Temoprary field to associate the post with a user
+   pass
 
 class PostUpdate(BaseModel):
     title: str | None = Field(default=None, max_length=100, min_length=1)
     content: str | None = Field(default=None, max_length=1000, min_length=1)
-
 
 class PostResponse(PostBase):
     model_config = ConfigDict(from_attributes=True)
@@ -49,3 +45,25 @@ class PostResponse(PostBase):
     user_id: int
     date_posted: datetime
     author: UserPublic
+
+class PaginatedPostsResponse(BaseModel):
+    posts: list[PostResponse]
+    total: int
+    skip: int
+    limit: int
+    has_more: bool
+
+
+## Password Reset Schemas
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr = Field(max_length=120)
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str = Field(min_length=8)
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str = Field(min_length=8)

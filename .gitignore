@@ -3,3 +3,6 @@ __pycache__/
 .idea/
 *.pyc
 .env
+*.db
+media/profile_pics/*
+!media/profile_pics/.gitkeep

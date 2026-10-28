@@ -1,0 +1,38 @@
+(.venv) PS C:\AI-Journey\Projects\FASTAPI_BLOG> & "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -h localhost -p 5432 -c "CREATE USER bloguser WITH PASSWORD '<YOUR_PASSWORD>';"
+
+Password for user postgres:
+
+psql: error: connection to server at "localhost" (::1), port 5432 failed: FATAL:  password authentication failed for user "postgres"
+(.venv) PS C:\AI-Journey\Projects\FASTAPI_BLOG> Get-ChildItem "C:\Program Files\PostgreSQL" -Filter psql.exe -Recurse
+
+
+    Directory: C:\Program Files\PostgreSQL\18\bin
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----         9/30/2026   6:59 PM         653824 psql.exe
+
+
+    Directory: C:\Program Files\PostgreSQL\18\pgAdmin 4\runtime
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----         9/30/2026   7:00 PM         653824 psql.exe
+
+
+(.venv) PS C:\AI-Journey\Projects\FASTAPI_BLOG> & "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -h localhost -p 5432
+Password for user postgres:
+
+psql (18.6)
+WARNING: Console code page (437) differs from Windows code page (1252)
+         8-bit characters might not work correctly. See psql reference
+         page "Notes for Windows users" for details.
+Type "help" for help.
+
+postgres=# CREATE USER bloguser WITH PASSWORD '<YOUR_PASSWORD>';
+CREATE ROLE
+postgres=# CREATE DATABASE fastapi_blog OWNER bloguser;
+CREATE DATABASE
+postgres=# \q\q
