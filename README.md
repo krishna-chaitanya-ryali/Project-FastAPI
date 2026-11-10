@@ -6,7 +6,7 @@
 # winget search PostgreSQL
 # winget install --id PostgreSQL.PostgreSQL.18 --exact
 
-
+'''
 To login to the database using psql, you can use the following command in your terminal or command prompt:
 
 (.venv) PS C:\AI-Journey\Projects\FASTAPI_BLOG> & "C:\Program Files\PostgreSQL\18\bin\psql.exe" -h localhost -p 5432 -U bloguser -d blog    
@@ -24,4 +24,4 @@ blog=>
 
 .\.venv\Scripts\alembic.exe revision --autogenerate -m "initial schema"
 
-
+'''

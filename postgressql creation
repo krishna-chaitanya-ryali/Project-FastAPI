@@ -36,3 +36,5 @@ CREATE ROLE
 postgres=# CREATE DATABASE fastapi_blog OWNER bloguser;
 CREATE DATABASE
 postgres=# \q\q
+
+CREATE DATABASE test_blog OWNER bloguser;
