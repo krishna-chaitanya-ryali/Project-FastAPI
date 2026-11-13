@@ -7,7 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
-    database_url: str = "sqlite+aiosqlite:///./blog.db"
+    database_url: str
 
     secret_key: SecretStr
     algorithm: str = "HS256"
@@ -31,9 +31,10 @@ class Settings(BaseSettings):
 
     # AWS S3 Configuration
     s3_bucket_name: str
-    s3_region: str
-    s3_access_key_id: SecretStr
-    s3_secret_access_key: SecretStr
+    s3_region: str = "eu-north-1"
+    s3_access_key_id: SecretStr | None = None
+    s3_secret_access_key: SecretStr | None = None
+    s3_endpoint_url: str | None = None
 
 
 settings = Settings() # type: ignore[call-arg] # Loaded settings from .env file
